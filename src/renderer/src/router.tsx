@@ -7,12 +7,14 @@ import { Routes, Route } from 'react-router-dom';
 // News
 // import News from './pages/news';
 import App from './Pages/App'
+import Servers from './Pages/Servers'
 
 const Router = () => {
   return (
     // <BrowserRouter >
       <Routes>
         <Route path='/' element={<App />} />
+        <Route path='/servers' element={<Servers />} />
         {/* <Route path='/projects' element={<MyProjects />} />
         <Route path='/teams' element={<MyTeams />} />
         <Route path='/exchange' element={<Exchange />} />

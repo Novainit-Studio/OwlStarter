@@ -2,13 +2,13 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-const os = require('os');
+const os = require('os')
 
 function createWindow(): void {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
+    width: 1280,
+    height: 720,
     show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
@@ -17,6 +17,7 @@ function createWindow(): void {
       sandbox: false
     }
   })
+  mainWindow.maximize()
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
@@ -52,27 +53,28 @@ app.whenReady().then(() => {
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
-  
+
   ipcMain.handle('get-system-info', () => {
     return {
       platform: os.platform(), // 'darwin', 'win32', 'linux'
       cpu: os.cpus(),
       totalMem: os.totalmem(),
-      freeMem: os.freemem(),
-    };
-  });
+      freeMem: os.freemem()
+    }
+  })
 
   ipcMain.handle('get-resource-usage', () => {
-    const cpus = os.cpus();
-    const totalMem = os.totalmem();
-    const freeMem = os.freemem();
-    
+    const cpus = os.cpus()
+    const totalMem = os.totalmem()
+    const freeMem = os.freemem()
+
     // Calculate CPU usage
-    const cpuUsage = cpus.reduce((acc, cpu) => {
-      const total = (Object.values(cpu.times) as number[]).reduce((a, b) => a + b, 0);
-      const idle = cpu.times.idle;
-      return acc + ((total - idle) / total) * 100;
-    }, 0) / cpus.length;
+    const cpuUsage =
+      cpus.reduce((acc, cpu) => {
+        const total = (Object.values(cpu.times) as number[]).reduce((a, b) => a + b, 0)
+        const idle = cpu.times.idle
+        return acc + ((total - idle) / total) * 100
+      }, 0) / cpus.length
 
     return {
       cpu: {
@@ -85,8 +87,8 @@ app.whenReady().then(() => {
         used: totalMem - freeMem,
         free: freeMem
       }
-    };
-  });
+    }
+  })
 
   createWindow()
 

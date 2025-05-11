@@ -1,5 +1,5 @@
 appId: com.novainit.owlstarter
-productName: server
+productName: OwlStarter
 directories:
   buildResources: build
 files:
@@ -12,7 +12,7 @@ files:
 asarUnpack:
   - resources/**
 win:
-  executableName: server
+  executableName: OwlStarter
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
