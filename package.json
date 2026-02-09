@@ -1,9 +1,9 @@
 {
   "name": "owl-starter",
-  "version": "1.0.0",
-  "description": "An Electron application with React and TypeScript",
+  "version": "1.1.0",
+  "description": "a Minecraft Server Launcher",
   "main": "./out/main/index.js",
-  "author": "example.com",
+  "author": "com.novainit.tw",
   "homepage": "https://electron-vite.org",
   "scripts": {
     "format": "prettier --write .",
@@ -28,6 +28,7 @@
     "electron-updater": "^6.3.9",
     "framer-motion": "^12.10.5",
     "lucide-react": "^0.487.0",
+    "pidusage": "^4.0.1",
     "postcss": "^8.5.3",
     "react-router-dom": "^7.5.0",
     "tailwindcss": "^4.1.3"

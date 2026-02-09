@@ -13,6 +13,8 @@ import Updates from './Pages/Updates'
 // function
 import CreateServer from './Pages/Function/CreateServer'
 import ServerManage from './Pages/ServerManage'
+import ServerFiles from './Pages/ServerFiles'
+import ServerSettings from './Pages/ServerSettings'
 
 const Router = () => {
   return (
@@ -25,6 +27,8 @@ const Router = () => {
         {/* ———————————功能——————————— */}
         <Route path='/create/server' element={<CreateServer />} />
         <Route path='/server/manage/:serverId' element={<ServerManageWrapper />} />
+        <Route path='/server/files/:serverId' element={<ServerFilesWrapper />} />
+        <Route path='/server/settings/:serverId' element={<ServerSettingsWrapper />} />
 
         {/* <Route path='/projects' element={<MyProjects />} />
         <Route path='/teams' element={<MyTeams />} />
@@ -46,6 +50,16 @@ import { useParams } from 'react-router-dom'
 function ServerManageWrapper() {
   const { serverId } = useParams()
   return <ServerManage serverId={serverId} />
+}
+
+function ServerFilesWrapper() {
+  const { serverId } = useParams()
+  return <ServerFiles serverId={serverId} />
+}
+
+function ServerSettingsWrapper() {
+  const { serverId } = useParams()
+  return <ServerSettings serverId={serverId} />
 }
 
 // 新增 ServerManage 路由

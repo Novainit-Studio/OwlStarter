@@ -9,17 +9,39 @@ const api = {
   getServer: (serverId: number) => ipcRenderer.invoke('servers:get', { serverId }),
   startServer: (serverId: number) => ipcRenderer.invoke('servers:start', { serverId }),
   stopServer: (serverId: number) => ipcRenderer.invoke('servers:stop', { serverId }),
+  killServer: (serverId: number) => ipcRenderer.invoke('servers:kill', { serverId }),
   deleteServer: (serverId: number) => ipcRenderer.invoke('servers:delete', { serverId }),
   getServerTerminal: (serverId: number, command?: string | null) =>
     ipcRenderer.invoke('server:terminal', { serverId, command: command ?? null }),
   getServerPlayers: (serverId: number) =>
     ipcRenderer.invoke('server:players', { serverId, action: 'list' }),
+  getServerUsage: (serverId: number) =>
+    ipcRenderer.invoke('servers:usage', { serverId }),
   playerAction: (serverId: number, action: 'kick' | 'ban', player: string) =>
     ipcRenderer.invoke('server:players', { serverId, action, player }),
   getServerConfig: (serverId: number) =>
     ipcRenderer.invoke('server:config:get', { serverId }),
   updateServerConfig: (serverId: number, content: string) =>
     ipcRenderer.invoke('server:config:update', { serverId, content }),
+  listServerFiles: (serverId: number, dir?: string) =>
+    ipcRenderer.invoke('servers:files:list', { serverId, dir }),
+  readServerFile: (serverId: number, filePath: string) =>
+    ipcRenderer.invoke('servers:files:read', { serverId, filePath }),
+  writeServerFile: (serverId: number, filePath: string, content: string) =>
+    ipcRenderer.invoke('servers:files:write', { serverId, filePath, content }),
+  deleteServerFile: (serverId: number, filePath: string) =>
+    ipcRenderer.invoke('servers:files:delete', { serverId, filePath }),
+  mkdirServerFile: (serverId: number, dir: string) =>
+    ipcRenderer.invoke('servers:files:mkdir', { serverId, dir }),
+  openServerFolder: (serverId: number, dir?: string) =>
+    ipcRenderer.invoke('servers:files:open', { serverId, dir }),
+  getNetworkInfo: () => ipcRenderer.invoke('network:info'),
+  listMembers: (serverId: number, type: 'whitelist' | 'ops' | 'banned') =>
+    ipcRenderer.invoke('servers:members:list', { serverId, type }),
+  addMember: (serverId: number, type: 'whitelist' | 'ops' | 'banned', name: string) =>
+    ipcRenderer.invoke('servers:members:add', { serverId, type, name }),
+  removeMember: (serverId: number, type: 'whitelist' | 'ops' | 'banned', name: string) =>
+    ipcRenderer.invoke('servers:members:remove', { serverId, type, name }),
   getUpdateState: () => ipcRenderer.invoke('updates:state'),
   checkForUpdates: () => ipcRenderer.invoke('updates:check'),
   downloadUpdate: () => ipcRenderer.invoke('updates:download'),
@@ -39,6 +61,11 @@ const api = {
     const handler = (_: any, payload: any) => callback(payload)
     ipcRenderer.on('window:event', handler)
     return () => ipcRenderer.removeListener('window:event', handler)
+  },
+  onShutdownEvent: (callback: (payload: any) => void) => {
+    const handler = (_: any, payload: any) => callback(payload)
+    ipcRenderer.on('shutdown:event', handler)
+    return () => ipcRenderer.removeListener('shutdown:event', handler)
   }
 }
 

@@ -77,6 +77,65 @@ function CreateServer() {
   const [version, setVersion] = useState('')
   const [maxPlayers, setMaxPlayers] = useState(20)
   const [port, setPort] = useState(25565)
+  const [motd, setMotd] = useState('OwlStarter Server')
+  const [onlineMode, setOnlineMode] = useState(true)
+  const [pvp, setPvp] = useState(true)
+  const [whitelist, setWhitelist] = useState(true)
+  const [gameMode, setGameMode] = useState('survival')
+  const [difficulty, setDifficulty] = useState('normal')
+
+  const insertMotdCode = (code: string) => {
+    setMotd((prev) => `${prev}${code}`)
+  }
+
+  const renderMotdPreview = (text: string) => {
+    const segments: Array<{ text: string; style: React.CSSProperties }> = []
+    let currentStyle: React.CSSProperties = {}
+    let buffer = ''
+    const colorMap: Record<string, string> = {
+      '0': '#000000',
+      '1': '#0000AA',
+      '2': '#00AA00',
+      '3': '#00AAAA',
+      '4': '#AA0000',
+      '5': '#AA00AA',
+      '6': '#FFAA00',
+      '7': '#AAAAAA',
+      '8': '#555555',
+      '9': '#5555FF',
+      a: '#55FF55',
+      b: '#55FFFF',
+      c: '#FF5555',
+      d: '#FF55FF',
+      e: '#FFFF55',
+      f: '#FFFFFF'
+    }
+    const flush = () => {
+      if (buffer) {
+        segments.push({ text: buffer, style: { ...currentStyle } })
+        buffer = ''
+      }
+    }
+    for (let i = 0; i < text.length; i += 1) {
+      const char = text[i]
+      if (char === '§' && i + 1 < text.length) {
+        const code = text[i + 1].toLowerCase()
+        flush()
+        if (colorMap[code]) {
+          currentStyle = { ...currentStyle, color: colorMap[code] }
+        } else if (code === 'l') {
+          currentStyle = { ...currentStyle, fontWeight: 700 }
+        } else if (code === 'r') {
+          currentStyle = {}
+        }
+        i += 1
+        continue
+      }
+      buffer += char
+    }
+    flush()
+    return segments
+  }
   const [loadingVersions, setLoadingVersions] = useState(false)
   const [versionError, setVersionError] = useState('')
   const [creating, setCreating] = useState(false)
@@ -148,11 +207,12 @@ function CreateServer() {
         maxPlayers,
         description,
         settings: JSON.stringify({
-          gameMode: 'survival',
-          difficulty: 'normal',
-          pvp: true,
-          whitelist: true,
-          onlineMode: true
+          motd,
+          gameMode,
+          difficulty,
+          pvp,
+          whitelist,
+          onlineMode
         })
       })
       setCreateMessage('伺服器已建立，正在下載 JAR 檔案。')
@@ -250,6 +310,46 @@ function CreateServer() {
                     onChange={(event) => setDescription(event.target.value)}
                     className="mt-2 w-full bg-[#0b1526] border border-[#1a2740] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-sky-400 resize-none"
                   />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="text-sm text-slate-400">伺服器 MOTD</label>
+                  <div className="mt-2 flex flex-wrap gap-2 text-xs text-slate-300">
+                    <button className="btn-ghost text-xs px-2 py-1" type="button" onClick={() => insertMotdCode('§l')}>
+                      粗體
+                    </button>
+                    <button className="btn-ghost text-xs px-2 py-1" type="button" onClick={() => insertMotdCode('§r')}>
+                      重置
+                    </button>
+                    {[
+                      { code: 'a', label: '綠' },
+                      { code: 'b', label: '青' },
+                      { code: 'c', label: '紅' },
+                      { code: 'e', label: '黃' },
+                      { code: 'f', label: '白' }
+                    ].map((item) => (
+                      <button
+                        key={item.code}
+                        className="btn-ghost text-xs px-2 py-1"
+                        type="button"
+                        onClick={() => insertMotdCode(`§${item.code}`)}
+                      >
+                        {item.label}
+                      </button>
+                    ))}
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="OwlStarter Server"
+                    value={motd}
+                    onChange={(event) => setMotd(event.target.value)}
+                    className="mt-2 w-full bg-[#0b1526] border border-[#1a2740] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-sky-400"
+                  />
+                  <div className="mt-2 panel-soft px-3 py-2 text-sm">
+                    {renderMotdPreview(motd).map((seg, idx) => (
+                      <span key={idx} style={seg.style}>{seg.text}</span>
+                    ))}
+                  </div>
+                  <div className="text-xs text-slate-400 mt-1">使用 Minecraft 格式碼（例如 §a 綠色、§l 粗體、§r 重置）</div>
                 </div>
               </div>
           </section>
@@ -364,35 +464,62 @@ function CreateServer() {
                 </div>
                 <div>
                   <label className="text-sm text-slate-400">遊戲模式</label>
-                  <select className="mt-2 w-full bg-[#0b1526] border border-[#1a2740] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-sky-400">
-                    <option>生存</option>
-                    <option>創造</option>
-                    <option>冒險</option>
-                    <option>旁觀</option>
+                  <select
+                    className="mt-2 w-full bg-[#0b1526] border border-[#1a2740] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-sky-400"
+                    value={gameMode}
+                    onChange={(event) => setGameMode(event.target.value)}
+                  >
+                    <option value="survival">生存</option>
+                    <option value="creative">創造</option>
+                    <option value="adventure">冒險</option>
+                    <option value="spectator">旁觀</option>
                   </select>
                 </div>
                 <div>
                   <label className="text-sm text-slate-400">難度</label>
-                  <select className="mt-2 w-full bg-[#0b1526] border border-[#1a2740] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-sky-400">
-                    <option>普通</option>
-                    <option>簡單</option>
-                    <option>困難</option>
-                    <option>和平</option>
+                  <select
+                    className="mt-2 w-full bg-[#0b1526] border border-[#1a2740] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-sky-400"
+                    value={difficulty}
+                    onChange={(event) => setDifficulty(event.target.value)}
+                  >
+                    <option value="normal">普通</option>
+                    <option value="easy">簡單</option>
+                    <option value="hard">困難</option>
+                    <option value="peaceful">和平</option>
                   </select>
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
-                {[
-                  { label: '允許 PvP', icon: Zap },
-                  { label: '啟用白名單', icon: Users },
-                  { label: '線上驗證', icon: Shield }
-                ].map(({ label, icon: Icon }) => (
-                  <label key={label} className="flex items-center gap-3 panel-soft px-3 py-2 text-sm cursor-pointer">
-                    <input type="checkbox" className="accent-sky-400" defaultChecked />
-                    <Icon size={16} className="text-sky-200" />
-                    <span>{label}</span>
-                  </label>
-                ))}
+                <label className="flex items-center gap-3 panel-soft px-3 py-2 text-sm cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="accent-sky-400"
+                    checked={pvp}
+                    onChange={(event) => setPvp(event.target.checked)}
+                  />
+                  <Zap size={16} className="text-sky-200" />
+                  <span>允許 PvP</span>
+                </label>
+                <label className="flex items-center gap-3 panel-soft px-3 py-2 text-sm cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="accent-sky-400"
+                    checked={whitelist}
+                    onChange={(event) => setWhitelist(event.target.checked)}
+                  />
+                  <Users size={16} className="text-sky-200" />
+                  <span>啟用白名單</span>
+                </label>
+                <label className="flex items-center gap-3 panel-soft px-3 py-2 text-sm cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="accent-sky-400"
+                    checked={onlineMode}
+                    onChange={(event) => setOnlineMode(event.target.checked)}
+                  />
+                  <Shield size={16} className="text-sky-200" />
+                  <span>線上驗證</span>
+                </label>
               </div>
             </section>
 

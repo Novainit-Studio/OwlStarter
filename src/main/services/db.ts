@@ -156,3 +156,16 @@ export const deleteServer = (id: number): void => {
 
   db!.prepare('DELETE FROM servers WHERE id = ?').run(id)
 }
+
+export const updateServerSettings = (id: number, settings: Record<string, any>): void => {
+  if (!db) {
+    initDb()
+  }
+
+  const now = new Date().toISOString()
+  db!.prepare('UPDATE servers SET settings = ?, updated_at = ? WHERE id = ?').run(
+    JSON.stringify(settings ?? {}),
+    now,
+    id
+  )
+}

@@ -1,16 +1,16 @@
-import { useState } from 'react'
+// import { useState } from 'react'
 import { Server, Package, ArrowRight, Sparkles, Rocket } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 function App() {
-  const [versions] = useState({
-    app: '1.0.0',
-    minecraft: {
-      vanilla: '1.20.4',
-      paper: '1.20.4-435',
-      spigot: '1.20.4'
-    }
-  })
+  // const [versions] = useState({
+  //   app: '1.0.0',
+  //   minecraft: {
+  //     vanilla: '1.20.4',
+  //     paper: '1.20.4-435',
+  //     spigot: '1.20.4'
+  //   }
+  // })
 
   return (
     <div className="page-shell px-6 py-10">

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Terminal, Server, Settings, Users } from 'lucide-react'
+import { Terminal, Server, Settings, Users, Link2, Activity } from 'lucide-react'
 
 function ServerManage({ serverId }) {
   const navigate = useNavigate()
@@ -18,6 +18,9 @@ function ServerManage({ serverId }) {
   const [configContent, setConfigContent] = useState('')
   const [configDirty, setConfigDirty] = useState(false)
   const [savingConfig, setSavingConfig] = useState(false)
+  const [networkAddresses, setNetworkAddresses] = useState<string[]>([])
+  const [resourceUsage, setResourceUsage] = useState<any>(null)
+  const [serverUsage, setServerUsage] = useState<any>(null)
 
   const statusLabel = useMemo(() => {
     if (!server) return '未知'
@@ -43,6 +46,18 @@ function ServerManage({ serverId }) {
     }
     loadServer()
   }, [serverId])
+
+  useEffect(() => {
+    if (serverId) {
+      localStorage.setItem('activeServerId', String(serverId))
+    }
+  }, [serverId])
+
+  useEffect(() => {
+    return () => {
+      localStorage.removeItem('activeServerId')
+    }
+  }, [])
 
   const refreshServer = async () => {
     const data = await (window.api as any).getServer(Number(serverId))
@@ -117,6 +132,27 @@ function ServerManage({ serverId }) {
     loadConfig()
   }, [serverId])
 
+
+  useEffect(() => {
+    const loadNetwork = async () => {
+      const res = await window.api.getNetworkInfo()
+      setNetworkAddresses(res?.addresses ?? [])
+    }
+    const loadUsage = async () => {
+      const usage = await window.os.ipcRenderer.getResourceUsage()
+      setResourceUsage(usage)
+      if (serverId) {
+        const serverRes = await window.api.getServerUsage(Number(serverId))
+        setServerUsage(serverRes)
+      }
+    }
+    loadNetwork()
+    loadUsage()
+    const timer = setInterval(loadUsage, 3000)
+    return () => clearInterval(timer)
+  }, [])
+
+
   const saveConfig = async () => {
     setSavingConfig(true)
     await (window.api as any).updateServerConfig(Number(serverId), configContent)
@@ -146,6 +182,23 @@ function ServerManage({ serverId }) {
     await refreshServer()
   }
 
+  const forceStopServer = async () => {
+    if (api?.killServer) {
+      await api.killServer(Number(serverId))
+    } else if (ipc) {
+      await ipc.invoke('servers:kill', { serverId: Number(serverId) })
+    } else {
+      throw new Error('API 尚未就緒')
+    }
+    await refreshServer()
+  }
+
+  const restartServer = async () => {
+    if (!serverId) return
+    await stopServer()
+    await startServer()
+  }
+
   const deleteServer = async () => {
     const ok = confirm('確定要刪除伺服器？此操作無法復原。')
     if (!ok) return
@@ -169,12 +222,20 @@ function ServerManage({ serverId }) {
             <div className="text-sm text-slate-400">快速管理、監控玩家與終端指令</div>
           </div>
         </div>
-        <button
-          className="btn-ghost inline-flex items-center justify-center"
-          onClick={() => navigate('/servers')}
-        >
-          返回列表
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            className="btn-ghost inline-flex items-center justify-center"
+            onClick={() => navigate(`/server/files/${serverId}`)}
+          >
+            檔案管理
+          </button>
+          <button
+            className="btn-ghost inline-flex items-center justify-center"
+            onClick={() => navigate('/servers')}
+          >
+            返回列表
+          </button>
+        </div>
       </div>
 
       {loadError && (
@@ -197,21 +258,37 @@ function ServerManage({ serverId }) {
             </div>
             <div className="text-sm text-slate-300">狀態：{statusLabel}</div>
           </div>
-          <div className="flex gap-2 mt-4">
-            <button
-              className="btn-primary"
-              onClick={startServer}
-              disabled={server.status === 'running'}
-            >
-              開機
-            </button>
-            <button
-              className="bg-rose-500 hover:bg-rose-600 text-slate-950 px-4 py-2 rounded-lg font-semibold"
-              onClick={stopServer}
-              disabled={server.status !== 'running'}
-            >
-              關機
-            </button>
+          <div className="flex flex-wrap gap-2 mt-4">
+            {server.status === 'running' ? (
+              <>
+                <button
+                  className="bg-rose-500 hover:bg-rose-600 text-slate-950 px-4 py-2 rounded-lg font-semibold"
+                  onClick={stopServer}
+                >
+                  關機
+                </button>
+                <button
+                  className="btn-accent"
+                  onClick={restartServer}
+                >
+                  重新開機
+                </button>
+                <button
+                  className="btn-ghost"
+                  onClick={forceStopServer}
+                >
+                  強制關閉
+                </button>
+              </>
+            ) : (
+              <button
+                className="btn-primary"
+                onClick={startServer}
+                disabled={server.status === 'creating'}
+              >
+                開機
+              </button>
+            )}
             <button
               className="btn-ghost"
               onClick={deleteServer}
@@ -221,6 +298,72 @@ function ServerManage({ serverId }) {
           </div>
         </div>
       )}
+
+      <div className="mb-6 grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <div className="panel p-4">
+          <div className="mb-3 text-lg title-display flex items-center gap-2">
+            <Link2 className="mr-2" />
+            連接方式
+          </div>
+          <div className="space-y-2 text-sm text-slate-300">
+            <div className="panel-soft px-3 py-2 flex items-center justify-between">
+              <span>本機</span>
+              <span className="text-slate-100">127.0.0.1:{server?.port}</span>
+            </div>
+            {networkAddresses.map((address) => (
+              <div key={address} className="panel-soft px-3 py-2 flex items-center justify-between">
+                <span>區網</span>
+                <span className="text-slate-100">{address}:{server?.port}</span>
+              </div>
+            ))}
+            {networkAddresses.length === 0 && (
+              <div className="text-xs text-slate-400">尚未取得區網位址</div>
+            )}
+          </div>
+        </div>
+        <div className="panel p-4">
+          <div className="mb-3 text-lg title-display flex items-center gap-2">
+            <Activity className="mr-2" />
+            伺服器使用量
+          </div>
+          {resourceUsage ? (
+            <div className="space-y-4 text-sm text-slate-300">
+              <div>
+                <div className="flex items-center justify-between">
+                  <span>主機 CPU</span>
+                  <span>{resourceUsage.cpu?.usage?.toFixed?.(1) ?? resourceUsage.cpu?.usage}%</span>
+                </div>
+                <div className="w-full h-2 rounded-full bg-[#0b1526] border border-[#1a2740] overflow-hidden mt-2">
+                  <div
+                    className="h-full bg-gradient-to-r from-sky-400 to-teal-300"
+                    style={{ width: `${Math.min(100, resourceUsage.cpu?.usage ?? 0)}%` }}
+                  />
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>主機記憶體</span>
+                <span>{Math.round((resourceUsage.memory?.used ?? 0) / (1024 * 1024))} MB / {Math.round((resourceUsage.memory?.total ?? 0) / (1024 * 1024))} MB</span>
+              </div>
+              {serverUsage?.running ? (
+                <div className="panel-soft p-3">
+                  <div className="flex items-center justify-between">
+                    <span>伺服器 CPU</span>
+                    <span>{serverUsage.cpu?.toFixed?.(1) ?? serverUsage.cpu}%</span>
+                  </div>
+                  <div className="flex items-center justify-between mt-2">
+                    <span>伺服器記憶體</span>
+                    <span>{Math.round((serverUsage.memory ?? 0) / (1024 * 1024))} MB ({(serverUsage.memoryPercent ?? 0).toFixed(1)}%)</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-xs text-slate-400">伺服器尚未啟動，無法取得使用量</div>
+              )}
+            </div>
+          ) : (
+            <div className="text-sm text-slate-400">載入中...</div>
+          )}
+        </div>
+      </div>
 
       {/* 檔案配置管理 */}
       <div className="mb-6">

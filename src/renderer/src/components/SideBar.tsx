@@ -32,25 +32,22 @@ const Sidebar = () => {
   }
 
   const serverMenuItems: MenuItem[] = [
-    { id: 'server-overview', icon: Activity, label: '伺服器概覽', page: '/servers/overview' },
-    { id: 'server-console', icon: FileText, label: '控制台', page: '/servers/console' },
-    { id: 'server-files', icon: HardDrive, label: '檔案管理', page: '/servers/files' },
-    { id: 'server-performance', icon: Cpu, label: '效能監控', page: '/servers/performance' },
-    { id: 'server-worlds', icon: Globe, label: '世界管理', page: '/servers/worlds' },
-    { id: 'server-control', icon: Play, label: '伺服器控制', page: '/servers/control', hasChildren: true }
+    { id: 'server-overview', icon: Activity, label: '伺服器概覽', page: '/server/manage/:serverId' },
+    { id: 'server-files', icon: HardDrive, label: '檔案管理', page: '/server/files/:serverId' },
+    { id: 'server-settings', icon: Settings, label: '伺服器設置', page: '/server/settings/:serverId' }
   ]
 
-  const serverControlItems: MenuItem[] = [
-    { id: 'control-start', icon: Play, label: '啟動伺服器', page: '/servers/control/start' },
-    { id: 'control-stop', icon: Square, label: '停止伺服器', page: '/servers/control/stop' },
-    { id: 'control-restart', icon: RotateCcw, label: '重新啟動', page: '/servers/control/restart' },
-    { id: 'control-backup', icon: Database, label: '立即備份', page: '/servers/control/backup' }
-  ]
+  // const serverControlItems: MenuItem[] = [
+  //   { id: 'control-start', icon: Play, label: '啟動伺服器', page: '/servers/control/start' },
+  //   { id: 'control-stop', icon: Square, label: '停止伺服器', page: '/servers/control/stop' },
+  //   { id: 'control-restart', icon: RotateCcw, label: '重新啟動', page: '/servers/control/restart' },
+  //   { id: 'control-backup', icon: Database, label: '立即備份', page: '/servers/control/backup' }
+  // ]
 
   const getCurrentMenuItems = () => {
     switch (currentLevel) {
       case 'servers': return serverMenuItems
-      case 'server-control': return serverControlItems
+      // case 'server-control': return serverControlItems
       default: return rootMenuItems
     }
   }
@@ -58,7 +55,7 @@ const Sidebar = () => {
   const getMenuTitle = () => {
     switch (currentLevel) {
       case 'servers': return '伺服器管理'
-      case 'server-control': return '伺服器控制'
+      // case 'server-control': return '伺服器控制'
       default: return 'OwlStarter'
     }
   }
@@ -82,14 +79,16 @@ const Sidebar = () => {
 
   useEffect(() => {
     const path = location.pathname
+    const serverIdMatch = path.match(/\/server\/[^/]+\/(\d+)/)
+    const currentServerId = serverIdMatch?.[1]
 
     if (path.startsWith('/servers/control/')) {
-      setCurrentLevel('server-control')
-      setBreadcrumb([
-        { level: 'root', label: 'OwlStarter' },
-        { level: 'servers', label: '伺服器管理' }
-      ])
+      setCurrentLevel('root')
+      setBreadcrumb([])
     } else if (path.startsWith('/servers')) {
+      setCurrentLevel('root')
+      setBreadcrumb([])
+    } else if (path.startsWith('/server/') && currentServerId) {
       setCurrentLevel('servers')
       setBreadcrumb([{ level: 'root', label: 'OwlStarter' }])
     } else {
@@ -98,15 +97,30 @@ const Sidebar = () => {
     }
 
     const currentItems = getCurrentMenuItems()
-    const activeMenuItem = currentItems.find(item => item.page === path)
+    const activeMenuItem = currentItems.find(item => {
+      if (item.page.includes(':serverId') && currentServerId) {
+        return item.page.replace(':serverId', currentServerId) === path
+      }
+      return item.page === path
+    })
     if (activeMenuItem) {
       setActiveItem(activeMenuItem.id)
     } else if (specialRouteActiveMap[path]) {
       setActiveItem(specialRouteActiveMap[path])
+    } else if (path.startsWith('/server/') && currentServerId) {
+      setActiveItem('servers')
     }
   }, [location.pathname])
 
-  const currentMenuItems = getCurrentMenuItems()
+  const currentMenuItems = getCurrentMenuItems().map((item) => {
+    if (!item.page.includes(':serverId')) return item
+    const serverIdMatch = location.pathname.match(/\/server\/[^/]+\/(\d+)/)
+    const currentServerId = serverIdMatch?.[1]
+    return {
+      ...item,
+      page: currentServerId ? item.page.replace(':serverId', currentServerId) : item.page.replace('/:serverId', '')
+    }
+  })
   const menuTitle = getMenuTitle()
 
   return (

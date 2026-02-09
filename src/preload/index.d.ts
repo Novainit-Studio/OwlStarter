@@ -43,12 +43,24 @@ declare global {
       getServer: (serverId: number) => Promise<ServerRecord | null>
       startServer: (serverId: number) => Promise<{ success: boolean }>
       stopServer: (serverId: number) => Promise<{ success: boolean }>
+      killServer: (serverId: number) => Promise<{ success: boolean }>
       deleteServer: (serverId: number) => Promise<{ success: boolean }>
       getServerTerminal: (serverId: number, command?: string | null) => Promise<{ output: string }>
       getServerPlayers: (serverId: number) => Promise<{ players: string[] }>
+      getServerUsage: (serverId: number) => Promise<{ running: boolean; cpu?: number; memory?: number; memoryPercent?: number }>
       playerAction: (serverId: number, action: 'kick' | 'ban', player: string) => Promise<{ result: string }>
       getServerConfig: (serverId: number) => Promise<{ content: string }>
       updateServerConfig: (serverId: number, content: string) => Promise<{ success: boolean }>
+      listServerFiles: (serverId: number, dir?: string) => Promise<Array<{ name: string; type: 'file' | 'dir'; path: string }>>
+      readServerFile: (serverId: number, filePath: string) => Promise<{ content: string }>
+      writeServerFile: (serverId: number, filePath: string, content: string) => Promise<{ success: boolean }>
+      deleteServerFile: (serverId: number, filePath: string) => Promise<{ success: boolean }>
+      mkdirServerFile: (serverId: number, dir: string) => Promise<{ success: boolean }>
+      openServerFolder: (serverId: number, dir?: string) => Promise<{ success: boolean }>
+      getNetworkInfo: () => Promise<{ addresses: string[] }>
+      listMembers: (serverId: number, type: 'whitelist' | 'ops' | 'banned') => Promise<{ members: string[] }>
+      addMember: (serverId: number, type: 'whitelist' | 'ops' | 'banned', name: string) => Promise<{ success: boolean }>
+      removeMember: (serverId: number, type: 'whitelist' | 'ops' | 'banned', name: string) => Promise<{ success: boolean }>
       getUpdateState: () => Promise<{
         status: string
         message?: string
@@ -70,6 +82,7 @@ declare global {
       closeWindow: () => Promise<{ success: boolean }>
       isWindowMaximized: () => Promise<{ maximized: boolean }>
       onWindowEvent: (callback: (payload: any) => void) => () => void
+      onShutdownEvent: (callback: (payload: any) => void) => () => void
     },
     os: any
   }

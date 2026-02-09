@@ -44,6 +44,7 @@ function Servers() {
   }
 
   useEffect(() => {
+    localStorage.removeItem('activeServerId')
     const loadServers = async () => {
       setLoading(true)
       setLoadError('')
@@ -120,11 +121,11 @@ function Servers() {
       exit="exit"
       className="panel p-5 flex flex-col gap-4"
     >
-      {server.jarSource && (
+      {/* {server.jarSource && (
         <div className="text-xs text-slate-400">
           JAR 來源: {server.jarSource}
         </div>
-      )}
+      )} */}
       <div className="flex justify-between items-start mb-4">
         <div>
           <h2 className="text-xl title-display mb-1">{server.name}</h2>
@@ -165,7 +166,10 @@ function Servers() {
         </button>
         <button
           className="py-2 px-4 rounded-lg border-none bg-[#132036] hover:bg-[#1a2a44] text-white cursor-pointer transition-colors duration-200"
-          onClick={() => navigate(`/server/manage/${server.id}`)}
+          onClick={() => {
+            localStorage.setItem('activeServerId', String(server.id))
+            navigate(`/server/manage/${server.id}`)
+          }}
         >
           管理
         </button>
@@ -212,7 +216,10 @@ function Servers() {
           </button>
           <button
             className="py-2 px-4 rounded-lg border-none bg-[#132036] hover:bg-[#1a2a44] text-white cursor-pointer transition-colors duration-200"
-            onClick={() => navigate(`/server/manage/${server.id}`)}
+            onClick={() => {
+              localStorage.setItem('activeServerId', String(server.id))
+              navigate(`/server/manage/${server.id}`)
+            }}
           >
             管理
           </button>
