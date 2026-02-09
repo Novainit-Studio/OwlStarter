@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Settings, ArrowLeft, UserPlus, Shield, UserX } from 'lucide-react'
+import { Settings, ArrowLeft } from 'lucide-react'
 
 function ServerSettings({ serverId }: { serverId?: string }) {
   const navigate = useNavigate()
@@ -13,13 +13,13 @@ function ServerSettings({ serverId }: { serverId?: string }) {
   const [difficulty, setDifficulty] = useState('normal')
   const [saving, setSaving] = useState(false)
   const [saveMessage, setSaveMessage] = useState('')
-  const [whitelistMembers, setWhitelistMembers] = useState<string[]>([])
-  const [opMembers, setOpMembers] = useState<string[]>([])
-  const [bannedMembers, setBannedMembers] = useState<string[]>([])
-  const [whitelistInput, setWhitelistInput] = useState('')
-  const [opInput, setOpInput] = useState('')
-  const [bannedInput, setBannedInput] = useState('')
-  const [memberError, setMemberError] = useState('')
+  // const [whitelistMembers, setWhitelistMembers] = useState<string[]>([])
+  // const [opMembers, setOpMembers] = useState<string[]>([])
+  // const [bannedMembers, setBannedMembers] = useState<string[]>([])
+  // const [whitelistInput, setWhitelistInput] = useState('')
+  // const [opInput, setOpInput] = useState('')
+  // const [bannedInput, setBannedInput] = useState('')
+  // const [memberError, setMemberError] = useState('')
 
   const insertMotdCode = (code: string) => {
     setMotd((prev) => `${prev}${code}`)
@@ -90,20 +90,20 @@ function ServerSettings({ serverId }: { serverId?: string }) {
     }
   }, [])
 
-  useEffect(() => {
-    const loadMembers = async () => {
-      if (!serverId) return
-      const [whitelistRes, opRes, bannedRes] = await Promise.all([
-        window.api.listMembers(Number(serverId), 'whitelist'),
-        window.api.listMembers(Number(serverId), 'ops'),
-        window.api.listMembers(Number(serverId), 'banned')
-      ])
-      setWhitelistMembers(whitelistRes?.members ?? [])
-      setOpMembers(opRes?.members ?? [])
-      setBannedMembers(bannedRes?.members ?? [])
-    }
-    loadMembers()
-  }, [serverId])
+  // useEffect(() => {
+  //   const loadMembers = async () => {
+  //     if (!serverId) return
+  //     // const [whitelistRes, opRes, bannedRes] = await Promise.all([
+  //     //   window.api.listMembers(Number(serverId), 'whitelist'),
+  //     //   window.api.listMembers(Number(serverId), 'ops'),
+  //     //   window.api.listMembers(Number(serverId), 'banned')
+  //     // ])
+  //     // setWhitelistMembers(whitelistRes?.members ?? [])
+  //     // setOpMembers(opRes?.members ?? [])
+  //     // setBannedMembers(bannedRes?.members ?? [])
+  //   }
+  //   loadMembers()
+  // }, [serverId])
 
   useEffect(() => {
     if (!configContent) return
@@ -158,33 +158,33 @@ function ServerSettings({ serverId }: { serverId?: string }) {
     }
   }
 
-  const addMember = async (type: 'whitelist' | 'ops' | 'banned', name: string) => {
-    if (!serverId || !name) return
-    setMemberError('')
-    try {
-      await window.api.addMember(Number(serverId), type, name)
-      const res = await window.api.listMembers(Number(serverId), type)
-      if (type === 'whitelist') setWhitelistMembers(res?.members ?? [])
-      if (type === 'ops') setOpMembers(res?.members ?? [])
-      if (type === 'banned') setBannedMembers(res?.members ?? [])
-    } catch (error) {
-      setMemberError(error instanceof Error ? error.message : '操作失敗')
-    }
-  }
+  // const addMember = async (type: 'whitelist' | 'ops' | 'banned', name: string) => {
+  //   if (!serverId || !name) return
+  //   setMemberError('')
+  //   try {
+  //     await window.api.addMember(Number(serverId), type, name)
+  //     const res = await window.api.listMembers(Number(serverId), type)
+  //     if (type === 'whitelist') setWhitelistMembers(res?.members ?? [])
+  //     if (type === 'ops') setOpMembers(res?.members ?? [])
+  //     if (type === 'banned') setBannedMembers(res?.members ?? [])
+  //   } catch (error) {
+  //     setMemberError(error instanceof Error ? error.message : '操作失敗')
+  //   }
+  // }
 
-  const removeMember = async (type: 'whitelist' | 'ops' | 'banned', name: string) => {
-    if (!serverId || !name) return
-    setMemberError('')
-    try {
-      await window.api.removeMember(Number(serverId), type, name)
-      const res = await window.api.listMembers(Number(serverId), type)
-      if (type === 'whitelist') setWhitelistMembers(res?.members ?? [])
-      if (type === 'ops') setOpMembers(res?.members ?? [])
-      if (type === 'banned') setBannedMembers(res?.members ?? [])
-    } catch (error) {
-      setMemberError(error instanceof Error ? error.message : '操作失敗')
-    }
-  }
+  // const removeMember = async (type: 'whitelist' | 'ops' | 'banned', name: string) => {
+  //   if (!serverId || !name) return
+  //   setMemberError('')
+  //   try {
+  //     await window.api.removeMember(Number(serverId), type, name)
+  //     const res = await window.api.listMembers(Number(serverId), type)
+  //     if (type === 'whitelist') setWhitelistMembers(res?.members ?? [])
+  //     if (type === 'ops') setOpMembers(res?.members ?? [])
+  //     if (type === 'banned') setBannedMembers(res?.members ?? [])
+  //   } catch (error) {
+  //     setMemberError(error instanceof Error ? error.message : '操作失敗')
+  //   }
+  // }
 
   return (
     <div className="page-shell px-6 py-8">

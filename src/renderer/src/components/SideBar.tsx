@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import {
   Server, Home, ChevronLeft, ChevronRight, ArrowLeft,
-  Settings, Database, Users, FileText, Package, Globe, Play,
-  Square, RotateCcw, HardDrive, Cpu, Activity, Sparkles, Download
+  Settings, Database, Users, FileText, Package,
+  HardDrive, Activity, Sparkles, Download
 } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 import { useSidebar } from '../context/SidebarContext'
