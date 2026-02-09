@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   Rocket,
   Server,
@@ -66,6 +67,7 @@ const TYPE_OPTIONS: Array<{
 ]
 
 function CreateServer() {
+  const navigate = useNavigate()
   const [name, setName] = useState('像素創世紀')
   const [description, setDescription] = useState('')
   const [type, setType] = useState<McJarType>('servers')
@@ -122,10 +124,21 @@ function CreateServer() {
       setCreateMessage('請補齊伺服器名稱、核心與版本。')
       return
     }
+    if (port < 1 || port > 65535) {
+      setCreateMessage('連接埠範圍必須在 1 ~ 65535。')
+      return
+    }
     setCreating(true)
     setCreateMessage('')
     try {
-      await window.api.createServer({
+      const existingServers = await window.api.listServers()
+      const portInUse = existingServers.find((server) => Number(server.port) === Number(port))
+      if (portInUse) {
+        setCreateMessage(`連接埠 ${port} 已被伺服器「${portInUse.name}」使用。請更換連接埠。`)
+        setCreating(false)
+        return
+      }
+      const created = await window.api.createServer({
         name,
         type,
         variant,
@@ -143,6 +156,11 @@ function CreateServer() {
         })
       })
       setCreateMessage('伺服器已建立，正在下載 JAR 檔案。')
+      if (created?.id) {
+        navigate(`/server/manage/${created.id}`)
+      } else {
+        navigate('/servers')
+      }
     } catch (error) {
       setCreateMessage('建立失敗，請稍後再試。')
     } finally {
@@ -163,9 +181,9 @@ function CreateServer() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <button className="btn-ghost text-sm">
+            {/* <button className="btn-ghost text-sm">
               儲存草稿
-            </button>
+            </button> */}
             <button
               className="btn-accent text-sm disabled:opacity-60 disabled:cursor-not-allowed"
               onClick={handleCreate}
