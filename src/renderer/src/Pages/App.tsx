@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Server, Package, ArrowRight } from 'lucide-react'
+import { Server, Package, ArrowRight, Sparkles, Rocket } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 function App() {
   const [versions] = useState({
@@ -12,64 +13,103 @@ function App() {
   })
 
   return (
-    <div className="text-gray-100 font-minecraft">
-      {/* 頂部橫幅 */}
-      <div className="bg-[#141414] p-6 shadow-lg border-b-2 border-[#2A2A2A]">
-        <div className="container mx-auto">
-          <h1 className="text-4xl font-bold text-center text-green-500">OwlStarter</h1>
-          <p className="text-center text-gray-400 mt-2">Minecraft 伺服器架設工具</p>
+    <div className="page-shell px-6 py-10">
+      <div className="panel panel-glow p-6 md:p-8 mb-8">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+          <div className="max-w-2xl">
+            <div className="chip mb-3">
+              <Sparkles size={14} />
+              啟動器模式
+            </div>
+            <h1 className="title-display text-4xl md:text-5xl mb-3">OwlStarter Control Deck</h1>
+            <p className="text-slate-300">
+              像遊戲啟動器一樣啟動你的 Minecraft 伺服器：快速配置、監控狀態、即時部署。
+            </p>
+            <div className="flex flex-wrap gap-3 mt-5">
+              <Link to="/servers" className="btn-primary inline-flex items-center gap-2">
+                <Server size={18} />
+                進入伺服器大廳
+              </Link>
+              <Link to="/create/server" className="btn-accent inline-flex items-center gap-2">
+                <Rocket size={18} />
+                一鍵建立新世界
+              </Link>
+            </div>
+          </div>
+          {/* <div className="panel-soft p-5 md:p-6 min-w-[240px]">
+            <div className="text-xs text-slate-400 mb-2">系統狀態</div>
+            <div className="title-display text-2xl mb-3 text-teal-200">READY</div>
+            <div className="flex flex-col gap-2 text-sm text-slate-300">
+              <div className="flex items-center justify-between">
+                <span>伺服器座位</span>
+                <span className="text-teal-200">12/20</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>資源健康度</span>
+                <span className="text-sky-200">穩定</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>版本快照</span>
+                <span className="text-slate-200">{versions.app}</span>
+              </div>
+            </div>
+          </div> */}
         </div>
       </div>
 
-      {/* 主要內容區域 */}
-      <div className="container mx-auto px-6 py-12">
-        {/* 功能卡片網格 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* 我的伺服器卡片 */}
-          <div className="bg-[#1A1A1A] rounded-lg p-6 border-2 border-[#2A2A2A] hover:border-green-500 transition-all duration-300">
-            <div className="flex items-center mb-4">
-              <Server className="text-green-500 mr-3" size={24} />
-              <h2 className="text-xl font-bold">我的伺服器</h2>
-            </div>
-            <p className="text-gray-400 mb-4">管理您的 Minecraft 伺服器，監控效能和玩家。</p>
-            <button className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md flex items-center justify-between transition-colors duration-200">
-              <span>進入管理</span>
-              <ArrowRight size={18} />
-            </button>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="panel p-5 flex flex-col gap-4">
+          <div className="flex items-center gap-3">
+            <Server className="text-teal-200" size={24} />
+            <h2 className="text-xl title-display">我的伺服器</h2>
           </div>
-
-          {/* 創建新伺服器卡片 */}
-          <div className="bg-[#1A1A1A] rounded-lg p-6 border-2 border-[#2A2A2A] hover:border-blue-500 transition-all duration-300">
-            <div className="flex items-center mb-4">
-              <Package className="text-blue-500 mr-3" size={24} />
-              <h2 className="text-xl font-bold">創建新伺服器</h2>
-            </div>
-            <p className="text-gray-400 mb-4">選擇版本和模組，快速部署新的 Minecraft 伺服器。</p>
-            <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md flex items-center justify-between transition-colors duration-200">
-              <span>開始創建</span>
-              <ArrowRight size={18} />
-            </button>
-          </div>
-
-          {/* 版本資訊卡片 */}
-          <div className="bg-[#1A1A1A] rounded-lg p-6 border-2 border-[#2A2A2A]">
-            <h2 className="text-xl font-bold mb-4">可用版本</h2>
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-gray-400">Vanilla</span>
-                <span className="text-green-500">{versions.minecraft.vanilla}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Paper</span>
-                <span className="text-green-500">{versions.minecraft.paper}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Spigot</span>
-                <span className="text-green-500">{versions.minecraft.spigot}</span>
-              </div>
-            </div>
-          </div>
+          <p className="text-slate-300 text-sm">
+            進入你的伺服器列表，快速切換狀態、查看玩家與效能。
+          </p>
+          <Link to="/servers" className="btn-ghost inline-flex items-center justify-between">
+            <span>進入管理</span>
+            <ArrowRight size={18} />
+          </Link>
         </div>
+
+        <div className="panel p-5 flex flex-col gap-4">
+          <div className="flex items-center gap-3">
+            <Package className="text-sky-200" size={24} />
+            <h2 className="text-xl title-display">創建新伺服器</h2>
+          </div>
+          <p className="text-slate-300 text-sm">
+            選擇核心、版本與世界設定，像選擇遊戲模式一樣快速部署。
+          </p>
+          <Link to="/create/server" className="btn-ghost inline-flex items-center justify-between">
+            <span>開始創建</span>
+            <ArrowRight size={18} />
+          </Link>
+        </div>
+
+        {/* <div className="panel p-5 flex flex-col gap-4">
+          <div className="flex items-center gap-3">
+            <Sparkles className="text-amber-200" size={24} />
+            <h2 className="text-xl title-display">可用版本</h2>
+          </div>
+          <div className="space-y-3 text-sm">
+            <div className="flex justify-between">
+              <span className="text-slate-400">Vanilla</span>
+              <span className="text-teal-200">{versions.minecraft.vanilla}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-400">Paper</span>
+              <span className="text-teal-200">{versions.minecraft.paper}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-400">Spigot</span>
+              <span className="text-teal-200">{versions.minecraft.spigot}</span>
+            </div>
+          </div>
+          <div className="chip w-fit">
+            <ArrowRight size={12} />
+            已同步最新核心
+          </div>
+        </div> */}
       </div>
     </div>
   )

@@ -8,6 +8,11 @@ import { Routes, Route } from 'react-router-dom';
 // import News from './pages/news';
 import App from './Pages/App'
 import Servers from './Pages/Servers'
+import Updates from './Pages/Updates'
+
+// function
+import CreateServer from './Pages/Function/CreateServer'
+import ServerManage from './Pages/ServerManage'
 
 const Router = () => {
   return (
@@ -15,6 +20,12 @@ const Router = () => {
       <Routes>
         <Route path='/' element={<App />} />
         <Route path='/servers' element={<Servers />} />
+        <Route path='/updates' element={<Updates />} />
+
+        {/* ———————————功能——————————— */}
+        <Route path='/create/server' element={<CreateServer />} />
+        <Route path='/server/manage/:serverId' element={<ServerManageWrapper />} />
+
         {/* <Route path='/projects' element={<MyProjects />} />
         <Route path='/teams' element={<MyTeams />} />
         <Route path='/exchange' element={<Exchange />} />
@@ -29,3 +40,14 @@ const Router = () => {
 };
 
 export default Router;
+
+// Wrapper for ServerManage to取得serverId
+import { useParams } from 'react-router-dom'
+function ServerManageWrapper() {
+  const { serverId } = useParams()
+  return <ServerManage serverId={serverId} />
+}
+
+// 新增 ServerManage 路由
+// 請將下列 Route 加入 <Routes> 內：
+// <Route path='/server/manage/:serverId' element={<ServerManageWrapper />} />
