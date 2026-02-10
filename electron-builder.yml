@@ -1,7 +1,9 @@
 appId: com.novainit.owlstarter
 productName: OwlStarter
+
 directories:
   buildResources: build
+
 files:
   - '!**/.vscode/*'
   - '!src/*'
@@ -9,25 +11,47 @@ files:
   - '!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
   - '!{.env,.env.*,.npmrc,pnpm-lock.yaml}'
   - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
+
 asarUnpack:
   - resources/**
+
+# ---------------------------------------
+# Windows 配置
 win:
-  executableName: OwlStarter
+  target:
+    - nsis
+  icon: build/icons/win/icon.ico
+  artifactName: "${productName}-Setup-${version}.${ext}"
+  #sign: false   # <- Windows 打包不簽名即可，避免 winCodeSign 解壓錯誤
+
 nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  perMachine: false
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}
   createDesktopShortcut: always
+
+# ---------------------------------------
+# macOS 配置
 mac:
+  icon: build/icons/mac/icon.icns
+  entitlements: build/entitlements.mac.plist
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:
-    - NSCameraUsageDescription: Application requests access to the device's camera.
-    - NSMicrophoneUsageDescription: Application requests access to the device's microphone.
-    - NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
-    - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
-  notarize: false
+    NSCameraUsageDescription: "Application requests access to the device's camera."
+    NSMicrophoneUsageDescription: "Application requests access to the user's microphone."
+    NSDocumentsFolderUsageDescription: "Application requests access to the user's Documents folder."
+    NSDownloadsFolderUsageDescription: "Application requests access to the user's Downloads folder."
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  notarize: false   # <- 測試用，不要 Apple 簽名
 dmg:
   artifactName: ${name}-${version}.${ext}
+
+# ---------------------------------------
+# Linux 配置
 linux:
   target:
     - AppImage
@@ -37,7 +61,11 @@ linux:
   category: Utility
 appImage:
   artifactName: ${name}-${version}.${ext}
+
 npmRebuild: false
+
+# ---------------------------------------
+# 發布設定
 publish:
   provider: github
   owner: Novainit-Studio
